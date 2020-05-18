@@ -57,6 +57,11 @@ class TransactionBatch:
 
     def get_customer_balance(self, customer_name, date):
 
+        try:
+            datetime.strptime(date, '%Y-%m-%d H:M.S')
+        except ValueError:
+            date += " 23:59:59"
+
         for customer in self.all_customers:
             if customer.name == customer_name:
                 return customer.get_balance(date)
