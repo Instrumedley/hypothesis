@@ -10,25 +10,25 @@ class TransactionBatch:
 
 
     def parse_ledger(self, filepath):
-        file = open(filepath, 'r')
-        content = [line.rstrip() for line in file.readlines()]
-        file.close()
+        try:
+            file = open(filepath, 'r')
+            content = [line.rstrip() for line in file.readlines()]
+            file.close()
 
-        return content
+            return content
+        except FileNotFoundError:
+            raise
 
     def process_batch(self):
 
-        print(self.transactions)
-
         for transaction in self.transactions:
             parts = transaction.split(",")
-            date = datetime.strptime(parts[0], '%Y-%m-%d %H:%M:%S')
+            date = parts[0]
             name_payer = parts[1]
             name_payee = parts[2]
             amount = float(parts[3])
             payer_exists = False
             payee_exists = False
-
 
             if len(self.all_customers) > 0:
                 for person in self.all_customers:
@@ -39,16 +39,12 @@ class TransactionBatch:
                         payee_exists = True
                         person.add_transaction(date, amount, name_payer, "received")
 
-
-
                 if payer_exists == False:
                     person = Person(name_payer, date, amount*-1, name_payee, "payer")
                     self.all_customers.append(person)
                 if payee_exists == False:
                     person = Person(name_payee, date, amount, name_payer, "payee")
                     self.all_customers.append(person)
-
-
 
             else:
                 person = Person(name_payer, date, amount*-1, name_payee, "sent")
@@ -57,33 +53,16 @@ class TransactionBatch:
                 self.all_customers.append(person)
 
 
-
-        print("\n\nAll processed:")
-        print(self.all_customers)
-        for processed_person in self.all_customers:
-            print(processed_person.name)
-            print(processed_person.transactions)
+        print("All customers in the batch have been processed!!")
 
     def get_customer_balance(self, customer_name, date):
 
-        date = datetime.strptime(date, '%Y-%m-%d')
         for customer in self.all_customers:
             if customer.name == customer_name:
                 return customer.get_balance(date)
-            else:
-                return "Customer does not exist"
+
+        return "Customer does not exist"
 
 
-
-
-
-
-
-
-
-ledger = 'ledger.txt'
-transaction = TransactionBatch(ledger)
-transaction.process_batch()
-print(transaction.get_customer_balance("john","2015-01-18"))
 
 

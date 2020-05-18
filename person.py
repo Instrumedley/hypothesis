@@ -1,11 +1,26 @@
 from datetime import datetime
+from exceptions import AddTransactionError, InvalidNumberError, InvalidDateError
+from utils import is_date
 
 class Person:
 
     def __init__(self, name, initial_date, amount, payee, type):
-        print("\n\nCreated person: {}\n\n".format(name))
-        self._name = name
-        self.transactions = {initial_date: [amount, payee, amount, type] }
+
+        try:
+            self._start_date = datetime.strptime(initial_date,'%Y-%m-%d %H:%M:%S')
+            self._name = name
+            self.transactions = {initial_date: [amount, payee, amount, type]}
+
+            if not isinstance(amount, int) and not isinstance(amount, float):
+                raise InvalidNumberError
+
+        except ValueError:
+            raise
+
+
+    @property
+    def start_date(self):
+        return self._start_date
 
     @property
     def name(self):
@@ -16,43 +31,41 @@ class Person:
         self._name = value
 
 
-
     def get_balance(self, desired_date):
-        # get a list of the dates and sort it
-        dates = list(self.transactions.keys())
 
+        if not is_date(desired_date):
+            raise InvalidDateError
+
+        dates = list(self.transactions.keys())
         dates.sort()
 
         prior_date = None
+
         for date in dates:
             if date < desired_date:
                 prior_date = date
             else:
-                break;
+                break
 
-        print("\nPrior date: ")
-        print(prior_date)
         if prior_date == None:
-            return 0
+            return -1
         else:
-            print("\nSelf.transactions:")
-            print(self.transactions)
-            print("\nPrevious balance of {} is: ".format(self._name))
-
-            print(self.transactions[prior_date][2])
-            return self.transactions[prior_date][2]
-
+            return float(self.transactions[prior_date][2])
 
 
     def add_transaction(self, date, amount, payee, type):
 
-        if type == "sent":
-            print("{} is now paying: {}".format(self._name, amount))
-        if type == "received":
-            print("{} just received: {} ".format(self._name, amount))
-        self.transactions[date] = [amount, payee, self.get_balance(date) + amount, type]
+        if not is_date(date):
+            raise InvalidDateError
+        try:
+            if datetime.strptime(date, '%Y-%m-%d %H:%M:%S') < self.start_date:
+                raise AddTransactionError()
 
+            if isinstance(amount, int) or isinstance(amount, float):
+                self.transactions[date] = [amount, payee, self.get_balance(date) + amount, type]
 
+            else:
+                raise InvalidNumberError
+        except TypeError:
+            raise
 
-if __name__ == "__main__":
-    rafael = Person("Rafael",'1985-03-06,100')
