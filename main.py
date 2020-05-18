@@ -30,6 +30,7 @@ if __name__ == "__main__":
             print("Customer {} did not have an account by {}: ".format(name, date))
         else:
             print("Current balance for {} on {}: ".format(name, date))
+            print(total)
 
     except FileNotFoundError:
         print("Error! Ledger file not found. Make sure you input the correct path")
