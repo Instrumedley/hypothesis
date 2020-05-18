@@ -10,7 +10,7 @@ if __name__ == "__main__":
     parser.add_argument("party_name", type=str,
                         help="The party's name for which you would like to check the balance")
     parser.add_argument("--date", type=str,
-                        help="(Optional) The date on which you would like to see the balance ( format: YYYY-MM-DD )"
+                        help="(Optional) The date on which you would like to see the balance ( format: YYYY-MM-DD H:M:S )"
                              "If not given, the current balance(today) will be printed")
 
     args = parser.parse_args()
